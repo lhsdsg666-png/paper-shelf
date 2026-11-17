@@ -50,12 +50,22 @@ function localPath(from, reference) {
 const relevantFile = path => textTypes.has(extension(path)) || imageTypes.has(extension(path)) || extension(path) === 'epub';
 const isMetadata = path => /(?:^|\/)(?:__MACOSX|\.DS_Store|Thumbs\.db)(?:\/|$)/i.test(path);
 
-async function expandZip(file, keep) {
+async function readBytes(file) {
+  try {
+    return new Uint8Array(await file.arrayBuffer());
+  } catch (error) {
+    if (['NotReadableError', 'NotFoundError', 'SecurityError'].includes(error?.name)) {
+      throw new Error('浏览器无法读取这个文件。请先把文件下载到设备本地，再从「下载」或本地文件夹重新选择。', { cause: error });
+    }
+    throw error;
+  }
+}
+
+function expandZip(bytes, keep) {
   const expanded = new Map();
   let total = 0;
   let entries = 0;
-  if (file.size > maxImport) throw new Error('压缩包超过 300 MB。');
-  const contents = unzipSync(new Uint8Array(await file.arrayBuffer()), {
+  const contents = unzipSync(bytes, {
     filter(info) {
       if (++entries > maxEntries) throw new Error('压缩包内的文件太多。');
       const path = safePath(info.name);
@@ -85,7 +95,8 @@ export async function collect(files) {
     if (!path || isMetadata(path)) continue;
     if (extension(path) === 'zip') {
       try {
-        groups.push({ label: stem(path), files: await expandZip(file, relevantFile) });
+        if (file.size > maxImport) throw new Error('压缩包超过 300 MB。');
+        groups.push({ label: stem(path), files: expandZip(await readBytes(file), relevantFile) });
       } catch (error) {
         warnings.push(fileName(path) + '：' + (error instanceof Error ? error.message : '无法解压。'));
       }
@@ -111,7 +122,7 @@ export function countTexts(group) {
 }
 
 async function decode(file) {
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  const bytes = await readBytes(file);
   for (const [first, second, encoding] of [[0xff, 0xfe, 'utf-16le'], [0xfe, 0xff, 'utf-16be']]) {
     if (bytes[0] === first && bytes[1] === second) return new TextDecoder(encoding).decode(bytes);
   }
@@ -262,7 +273,8 @@ const chapterText = child => typeof child === 'string' ? child : (child.children
 const hasImage = child => typeof child !== 'string' && (child.image || child.children?.some(hasImage));
 
 async function epubBook(path, file, folder, novels) {
-  const files = await expandZip(file, candidate => /\.(?:xml|opf|ncx|x?html?|svg)$/i.test(candidate) || imageTypes.has(extension(candidate)));
+  const bytes = await readBytes(file);
+  const files = expandZip(bytes, candidate => /\.(?:xml|opf|ncx|x?html?|svg)$/i.test(candidate) || imageTypes.has(extension(candidate)));
   const container = await markup(files, 'META-INF/container.xml', true);
   const root = [...elements(container, 'rootfile')][0];
   const opfPath = localPath('', root?.attribs['full-path']);
@@ -325,7 +337,7 @@ async function epubBook(path, file, folder, novels) {
   }));
   const assets = [...images].map(([path, blob]) => ({ path, blob })).concat(attachments);
   const cover = assets.find(asset => asset.path === coverPath) || assets.find(asset => coverName.test(stem(asset.path))) || assets[0];
-  return { id: await hash(await file.arrayBuffer()), title, author, format: 'EPUB', chapters, assets, cover };
+  return { id: await hash(bytes), title, author, format: 'EPUB', chapters, assets, cover };
 }
 
 export async function* readGroup(group, merge) {

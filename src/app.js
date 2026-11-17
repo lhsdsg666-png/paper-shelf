@@ -239,17 +239,18 @@ async function importSelection(getFiles) {
       }
     }
     await refreshShelf();
-    if (imported || duplicates) {
+    if (warnings.length) {
+      visible($('toast'), false);
+      const list = make('ul', 'warnings');
+      for (const warning of warnings) list.append(make('li', '', warning));
+      const summary = '已加入书架 ' + imported + ' 本' + (duplicates ? '，保留已有的 ' + duplicates + ' 本' : '') + '。';
+      showDialog(imported || duplicates ? '部分文件未能导入' : '导入失败', [
+        make('p', 'dialog-copy', summary), list
+      ]);
+    } else if (imported || duplicates) {
       message('已导入 ' + imported + ' 本' + (duplicates ? '，保留已有的 ' + duplicates + ' 本' : '') + '。');
     } else {
       message(skipped ? '没有新书加入书架。' : '没有找到可导入的 TXT、Markdown 或 EPUB 小说。');
-    }
-    if (warnings.length) {
-      const list = make('ul', 'warnings');
-      for (const warning of warnings) list.append(make('li', '', warning));
-      showDialog('部分文件未能导入', [
-        make('p', 'dialog-copy', '已加入书架 ' + imported + ' 本。'), list
-      ]);
     }
   } catch (error) {
     message('导入失败。' + formatError(error));
@@ -258,11 +259,16 @@ async function importSelection(getFiles) {
   }
 }
 
-function selectFiles(event) {
-  const files = [...event.target.files];
-  event.target.value = '';
-  if (files.length) void navigator.storage?.persist?.().catch(() => {});
-  void importSelection(() => files);
+async function selectFiles(event) {
+  const input = event.currentTarget;
+  const files = [...input.files];
+  if (!files.length) return;
+  void navigator.storage?.persist?.().catch(() => {});
+  try {
+    await importSelection(() => files);
+  } finally {
+    input.value = '';
+  }
 }
 
 function applyAppearance() {
