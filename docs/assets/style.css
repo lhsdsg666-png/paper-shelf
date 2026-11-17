@@ -57,6 +57,10 @@ img { display: block; max-width: 100%; }
 .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; font: bold 24px var(--serif); letter-spacing: .1em; }
 .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; background: #294c3d; color: #f1e9d6; border-radius: 9px; }
 .brand-mark svg { width: 21px; height: 21px; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.install-link { display: inline-flex; align-items: center; gap: 5px; padding: 7px 8px; border: 1px solid transparent; border-radius: 7px; color: var(--accent); background: none; font-size: 12px; white-space: nowrap; }
+.install-link:hover { background: var(--soft); }
+.install-link [data-icon] { width: 14px; height: 14px; }
 .privacy-pill { display: inline-flex; padding: 7px 12px; align-items: center; gap: 6px; border: 1px solid #d9e2d4; border-radius: 30px; background: #eef1e8; color: #3e5a47; font-size: 12px; }
 .privacy-pill [data-icon] { width: 14px; height: 14px; }
 .privacy-pill:hover { background: #e3eadc; }
@@ -253,6 +257,12 @@ dialog::backdrop { background: #17231c73; }
   .dialog-body { padding-inline: 15px; }
   .dialog-actions { gap: 6px; }
   .dialog-actions .button { padding-inline: 9px; }
+}
+
+@media (max-width: 340px) {
+  .header-actions { gap: 4px; }
+  .install-link, .privacy-pill { padding-inline: 6px; }
+  .install-link [data-icon] { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

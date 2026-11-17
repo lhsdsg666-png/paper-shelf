@@ -6,9 +6,12 @@
   <meta name="description" content="纸间是一间保存在你浏览器里的私人小说书架。">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#f6f4ed">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta name="apple-mobile-web-app-title" content="纸间">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>纸间 · 私人小说书架</title>
+  <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
   <link rel="stylesheet" href="./assets/style.css">
   <script type="module" src="./assets/app.js"></script>
 </head>
@@ -19,7 +22,10 @@
       <a class="brand" href="./" aria-label="纸间书架">
         <span class="brand-mark" data-icon="book"></span><span>纸间</span>
       </a>
-      <button class="privacy-pill" id="privacy" type="button"><span data-icon="lock"></span> 本地书库</button>
+      <div class="header-actions">
+        <button class="install-link" id="install" type="button" hidden><span data-icon="download"></span> 安装到桌面</button>
+        <button class="privacy-pill" id="privacy" type="button"><span data-icon="lock"></span> 本地书库</button>
+      </div>
     </div>
   </header>
   <main class="wrap shelf" id="shelf">

@@ -35,6 +35,7 @@ let routeVersion = 0;
 let shelfScroll = 0;
 let toastTimer;
 let dragDepth = 0;
+let installPrompt;
 let settings = { theme: 'paper', size: 1 };
 try {
   const previous = JSON.parse(localStorage.getItem('paper-shelf:appearance'));
@@ -79,6 +80,23 @@ function openPrivacy() {
     '清除网站数据或使用无痕窗口可能丢失书库。共用同一个浏览器用户配置的人可以打开这份书库，请保留原文件。'
   ];
   showDialog('本地书库', lines.map(line => make('p', 'dialog-copy', line)));
+}
+
+async function installApp() {
+  if (installPrompt) {
+    const prompt = installPrompt;
+    installPrompt = null;
+    try {
+      await prompt.prompt();
+      return;
+    } catch {}
+  }
+  const lines = [
+    '安卓｜用 Chrome 打开纸间，点右上角菜单 →「添加到主屏幕」或「安装应用」。',
+    'iPhone｜用 Safari 打开纸间，点「分享」→「添加到主屏幕」。如果看到「作为网页 App 打开」，请保持开启。',
+    'iPhone 桌面版有自己的本地书架，请从桌面图标打开后导入小说。'
+  ];
+  showDialog('安装到桌面', lines.map(line => make('p', 'dialog-copy', line)));
 }
 
 function coverCard(book) {
@@ -509,6 +527,24 @@ function showSettings() {
 }
 
 addIcons(document);
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+visible($('install'), !standalone);
+$('install').addEventListener('click', installApp);
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  installPrompt = event;
+});
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  visible($('install'), false);
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(error => {
+      console.warn('纸间离线资源初始化失败。', error);
+    });
+  });
+}
 history.scrollRestoration = 'manual';
 $('privacy').addEventListener('click', openPrivacy);
 $('dialog-close').addEventListener('click', () => dialog.close());
