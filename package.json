@@ -1,0 +1,17 @@
+{
+  "name": "paper-shelf",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --minify --legal-comments=linked --format=esm --target=es2022 --outfile=docs/assets/app.js",
+    "preview": "python -m http.server 8090 --bind 127.0.0.1 --directory docs"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "htmlparser2": "12.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

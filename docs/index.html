@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="纸间是一间保存在你浏览器里的私人小说书架。">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f6f4ed">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <title>纸间 · 私人小说书架</title>
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/style.css">
+  <script type="module" src="./assets/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#shelf">跳到书架</a>
+  <header class="site-header" id="shelf-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./" aria-label="纸间书架">
+        <span class="brand-mark" data-icon="book"></span><span>纸间</span>
+      </a>
+      <button class="privacy-pill" id="privacy" type="button"><span data-icon="lock"></span> 本地书库</button>
+    </div>
+  </header>
+  <main class="wrap shelf" id="shelf">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-art" aria-hidden="true"></div>
+      <div class="hero-content">
+        <h1 id="hero-title">把小说收进<br>自己的书架</h1>
+        <p>导入小说和插图，在浏览器里继续读。</p>
+        <div class="hero-actions">
+          <button class="button hero-button" id="pick-folder" type="button"><span data-icon="folder"></span>导入文件夹</button>
+          <button class="button hero-secondary" id="pick-files" type="button"><span data-icon="file"></span>选择文件</button>
+        </div>
+        <small class="formats">支持 TXT、Markdown、EPUB 和 ZIP 文件夹</small>
+      </div>
+    </section>
+    <input id="folder-input" type="file" webkitdirectory multiple hidden>
+    <input id="file-input" type="file" multiple accept=".txt,.md,.markdown,.epub,.zip,.png,.jpg,.jpeg,.gif,.webp,.avif,.bmp" hidden>
+    <section class="library" aria-labelledby="library-title">
+      <div class="library-heading">
+        <div class="heading-label"><h2 id="library-title">我的书架</h2><span id="book-count" class="book-count"></span></div>
+        <div class="library-controls">
+          <label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="搜索书名或作者" aria-label="搜索书名或作者"></label>
+          <label class="sort"><span data-icon="sort"></span><select id="sort" aria-label="书架排序">
+            <option value="recent">最近阅读</option>
+            <option value="added">最近导入</option>
+            <option value="title">书名排序</option>
+          </select></label>
+        </div>
+      </div>
+      <div class="empty" id="empty">
+        <div class="empty-books" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+        <div><h3 id="empty-title">正在打开书架</h3><p id="empty-message"></p></div>
+      </div>
+      <div class="book-grid" id="book-grid" hidden></div>
+    </section>
+    <footer class="shelf-footer"><span data-icon="shield"></span> 小说、插图和阅读进度保存在当前浏览器。</footer>
+  </main>
+  <div id="drop-overlay" class="drop-overlay" hidden><div><span data-icon="folder"></span><strong>松开鼠标，导入小说</strong></div></div>
+  <main id="reader" class="reader" hidden>
+    <header class="reader-header">
+      <div class="reader-header-inner">
+        <button id="back" class="button quiet back" type="button"><span data-icon="arrow-left"></span><span>书架</span></button>
+        <div class="reader-heading"><strong id="reader-title"></strong><span id="reader-position"></span></div>
+        <div class="reader-tools">
+          <button class="icon-button" id="toc" type="button" aria-label="目录" title="目录"><span data-icon="list"></span></button>
+          <button class="icon-button" id="gallery" type="button" aria-label="插图" title="插图"><span data-icon="image"></span></button>
+          <button class="icon-button settings-icon" id="settings" type="button" aria-label="阅读设置" title="阅读设置">Aa</button>
+        </div>
+      </div>
+      <progress class="reader-progress" id="reader-progress" max="100" value="0" aria-label="全书阅读进度"></progress>
+    </header>
+    <div class="reading-area">
+      <h1 id="chapter-title" tabindex="-1"></h1>
+      <article id="chapter" class="chapter"></article>
+      <nav class="chapter-nav" aria-label="翻页">
+        <button id="prev" class="button quiet" type="button"><span data-icon="arrow-left"></span>上一章</button>
+        <button id="next" class="button quiet" type="button">下一章<span data-icon="arrow-right"></span></button>
+      </nav>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <div class="dialog-header">
+      <h2 id="dialog-title"></h2>
+      <button id="dialog-close" class="icon-button" type="button" aria-label="关闭"><span data-icon="close"></span></button>
+    </div>
+    <div class="dialog-body" id="dialog-body"></div>
+  </dialog>
+</body>
+</html>
